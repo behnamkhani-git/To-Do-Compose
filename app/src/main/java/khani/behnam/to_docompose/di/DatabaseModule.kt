@@ -40,6 +40,9 @@ object DatabaseModule {
      We use it for Room, Retrofit and ...
      */
     @Provides /* Hey Dagger, we want to provide a dependency which is a database in this case */
+    /*
+    Hilt executes the function body everytime it needs to provide an instance of that type.
+     */
     fun provideDatabase(
         @ApplicationContext context: Context
     ) = Room.databaseBuilder(
