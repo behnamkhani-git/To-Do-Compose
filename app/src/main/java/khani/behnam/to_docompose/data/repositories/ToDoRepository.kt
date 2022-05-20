@@ -1,10 +1,17 @@
 package khani.behnam.to_docompose.data.repositories
 
+import dagger.hilt.android.scopes.ViewModelScoped
 import khani.behnam.to_docompose.data.ToDoDao
 import khani.behnam.to_docompose.data.models.ToDoTask
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+/*
+
+Tells the objects of ToDoRepository that will be alive as long as
+the ShareViewModel is alive
+ */
+@ViewModelScoped
 class ToDoRepository @Inject constructor(private val toDoDao: ToDoDao) {
     val getAllTasks: Flow<List<ToDoTask>> = toDoDao.getAllTasks()
     suspend fun sortByLowPriority(): Flow<List<ToDoTask>> = toDoDao.sortByLowPriority()
