@@ -13,7 +13,11 @@ import khani.behnam.to_docompose.R
 @Composable
 fun ListScreen(navigateToTaskScreen: (Int) -> Unit) {
     Scaffold(
-        // content is mandatory
+        // Top Bar (Action Bar)
+        topBar = {
+            ListAppBar()
+        },
+
         content = {},
         floatingActionButton = {
             ListFab(onFabClicked = navigateToTaskScreen)
