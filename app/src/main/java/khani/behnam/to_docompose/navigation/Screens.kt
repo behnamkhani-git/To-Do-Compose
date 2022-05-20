@@ -12,6 +12,10 @@ class Screens(navController: NavHostController) {
             }
         }
     }
+    /*
+    Inside Task screen we will have two TopBars that only one of them will be
+    displayed at a time
+     */
     val task: (Int) -> Unit = { taskId ->
         navController.navigate("task/$taskId")
     }
