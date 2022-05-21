@@ -1,10 +1,13 @@
 package khani.behnam.to_docompose.ui.viewmodels
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.data.repositories.ToDoRepository
+import khani.behnam.to_docompose.util.SearchAppBarState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -17,6 +20,11 @@ To enable injection of a ViewModel by Hilt use the @HiltViewModel annotation
 @HiltViewModel
 class SharedViewModel @Inject constructor(private val repository: ToDoRepository)
     : ViewModel() {
+    // When we click on search icon, this will be opened
+    val searchAppBarState: MutableState<SearchAppBarState> =
+        mutableStateOf(SearchAppBarState.CLOSED)
+    // Set the text of search box
+    val searchTextState: MutableState<String> = mutableStateOf("")
     /*
     Flow vs LiveData:
     Flows are based on Coroutines by default.

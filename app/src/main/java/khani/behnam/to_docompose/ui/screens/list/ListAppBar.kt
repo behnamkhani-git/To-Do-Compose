@@ -27,15 +27,40 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import khani.behnam.to_docompose.components.PriorityItem
 import khani.behnam.to_docompose.ui.theme.*
+import khani.behnam.to_docompose.ui.viewmodels.SharedViewModel
+import khani.behnam.to_docompose.util.SearchAppBarState
+import khani.behnam.to_docompose.util.TrailingIconState
 
 @Composable
-fun ListAppBar(onSearchClicked: () -> Unit) {
-//    DefaultListAppBar(
-//        onSearchClicked = {},
-//        onSortClicked = {},
-//        onDeleteClicked = {}
-//    )
-    SearchAppBar(text = "Search", onTextChanged = {}, onCloseClicked = { }, onSearchClicked = {})
+fun ListAppBar(
+    sharedViewModel: SharedViewModel,
+    searchAppBarState: SearchAppBarState,
+    searchTextState: String
+) {
+    when (searchAppBarState) {
+        SearchAppBarState.CLOSED -> {
+            DefaultListAppBar(
+                onSearchClicked = {
+                    sharedViewModel.searchAppBarState.value = SearchAppBarState.OPENED
+                },
+                onSortClicked = {},
+                onDeleteClicked = {}
+            )
+        }
+
+        else -> {
+            SearchAppBar(
+                text = searchTextState,
+                onTextChanged = { newText ->
+                    sharedViewModel.searchTextState.value = newText
+                },
+                onCloseClicked = {
+                    sharedViewModel.searchAppBarState.value = SearchAppBarState.CLOSED
+                    sharedViewModel.searchTextState.value = ""
+                },
+                onSearchClicked = {})
+        }
+    }
 }
 
 @Composable
@@ -148,91 +173,112 @@ fun SortAction(
 @Composable
 fun SearchAction(onSearchClicked: () -> Unit) {
 
-        IconButton(onClick = { onSearchClicked() }) {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = stringResource(id = R.string.search_action),
-                // Change color of sort icon
-                tint = MaterialTheme.colors.topAppBarContentColor
-            )
-        }
-    }
-    @Composable
-    fun SearchAppBar(
-        text: String, // text value on the search field
-        onTextChanged: (String) -> Unit,  //
-        onCloseClicked: () -> Unit, // when we close search app bar
-        onSearchClicked: (String) -> Unit // when we click on search icon
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(TOP_APP_BAR_HEIGHT),
-            elevation = AppBarDefaults.TopAppBarElevation,
-            color = MaterialTheme.colors.topAppBarBackgroundColor
-        ) {
-            TextField(modifier = Modifier.fillMaxWidth(), value = text, onValueChange = {
-                onTextChanged(it)
-            }, placeholder = {
-                Text(
-                    modifier = Modifier.alpha(ContentAlpha.disabled),
-                    text = "Search",
-                    color = Color.White
-                )
-            },
-                textStyle = TextStyle(
-                    color = MaterialTheme.colors.topAppBarContentColor,
-                    fontSize = MaterialTheme.typography.subtitle1.fontSize
-                ),
-                singleLine = true,
-                leadingIcon = {
-                    IconButton(modifier = Modifier.alpha(ContentAlpha.disabled), onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Filled.Search, contentDescription = "Search Icon",
-                            tint = MaterialTheme.colors.topAppBarContentColor
-                        )
-                    }
-                },
-                trailingIcon = {
-                    IconButton(onClick = { onCloseClicked() }) {
-                        Icon(
-                            imageVector = Icons.Filled.Close, contentDescription = "Close Icon",
-                            tint = MaterialTheme.colors.topAppBarContentColor
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(
-                    // Enable serach icon in the keyboard
-                    imeAction = ImeAction.Search
-                ),
-                // Whenever user press the Search icon in the keyboard then trigger onSearchClicked
-                keyboardActions = KeyboardActions(onSearch = {
-                    onSearchClicked(text)
-                }) {
-
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = MaterialTheme.colors.topAppBarContentColor,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    backgroundColor = Color.Transparent
-                )
-
-            )
-        }
-    }
-
-
-    @Composable
-    @Preview
-    private fun DefaultListAppBarPreview() {
-        DefaultListAppBar(onSearchClicked = {}, onSortClicked = {}, onDeleteClicked = {}
+    IconButton(onClick = { onSearchClicked() }) {
+        Icon(
+            imageVector = Icons.Filled.Search,
+            contentDescription = stringResource(id = R.string.search_action),
+            // Change color of sort icon
+            tint = MaterialTheme.colors.topAppBarContentColor
         )
     }
+}
 
-    @Composable
-    @Preview
-    private fun SearchAppBarPreview() {
-        SearchAppBar(text = "", onTextChanged = {}, onCloseClicked = { }, onSearchClicked = {})
+@Composable
+fun SearchAppBar(
+    text: String, // text value on the search field
+    onTextChanged: (String) -> Unit,  //
+    onCloseClicked: () -> Unit, // when we close search app bar
+    onSearchClicked: (String) -> Unit // when we click on search icon
+) {
+    var trailingIconState by remember {
+        mutableStateOf(TrailingIconState.READY_TO_DELETE)
     }
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(TOP_APP_BAR_HEIGHT),
+        elevation = AppBarDefaults.TopAppBarElevation,
+        color = MaterialTheme.colors.topAppBarBackgroundColor
+    ) {
+        TextField(modifier = Modifier.fillMaxWidth(), value = text, onValueChange = {
+            onTextChanged(it)
+        }, placeholder = {
+            Text(
+                modifier = Modifier.alpha(ContentAlpha.disabled),
+                text = "Search",
+                color = Color.White
+            )
+        },
+            textStyle = TextStyle(
+                color = MaterialTheme.colors.topAppBarContentColor,
+                fontSize = MaterialTheme.typography.subtitle1.fontSize
+            ),
+            singleLine = true,
+            leadingIcon = {
+                IconButton(modifier = Modifier.alpha(ContentAlpha.disabled), onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Filled.Search, contentDescription = "Search Icon",
+                        tint = MaterialTheme.colors.topAppBarContentColor
+                    )
+                }
+            },
+            trailingIcon = {
+                IconButton(onClick = {
+                    when(trailingIconState){
+                        TrailingIconState.READY_TO_DELETE -> {
+                            // Remove the textfield text
+                            onTextChanged("")
+                            trailingIconState = TrailingIconState.READY_TO_CLOSE
+                        }
+                        TrailingIconState.READY_TO_CLOSE -> {
+                            // If we have text in text field and click on close, it will clear the
+                            // textField and then it close the search bar
+                            if (text.isNotEmpty()){
+                                onTextChanged("")
+                            } else {
+                                onCloseClicked()
+                                trailingIconState = TrailingIconState.READY_TO_DELETE
+                            }
+                        }
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Close, contentDescription = "Close Icon",
+                        tint = MaterialTheme.colors.topAppBarContentColor
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                // Enable serach icon in the keyboard
+                imeAction = ImeAction.Search
+            ),
+            // Whenever user press the Search icon in the keyboard then trigger onSearchClicked
+            keyboardActions = KeyboardActions(onSearch = {
+                onSearchClicked(text)
+            }) {
+
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                cursorColor = MaterialTheme.colors.topAppBarContentColor,
+                focusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                backgroundColor = Color.Transparent
+            )
+
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun DefaultListAppBarPreview() {
+    DefaultListAppBar(onSearchClicked = {}, onSortClicked = {}, onDeleteClicked = {}
+    )
+}
+
+@Composable
+@Preview
+private fun SearchAppBarPreview() {
+    SearchAppBar(text = "", onTextChanged = {}, onCloseClicked = { }, onSearchClicked = {})
+}
