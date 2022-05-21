@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import khani.behnam.to_docompose.components.PriorityItem
@@ -71,7 +70,7 @@ fun DefaultListAppBar(
 ) {
     TopAppBar(
         title = {
-            Text(text = "Tasks", color = MaterialTheme.colors.topAppBarContentColor)
+            Text(text = stringResource(R.string.list_screen_title), color = MaterialTheme.colors.topAppBarContentColor)
         },
         actions = {
             ListBarActions(
@@ -205,7 +204,7 @@ fun SearchAppBar(
         }, placeholder = {
             Text(
                 modifier = Modifier.alpha(ContentAlpha.disabled),
-                text = "Search",
+                text = stringResource(R.string.search_placeholder),
                 color = Color.White
             )
         },
@@ -217,7 +216,7 @@ fun SearchAppBar(
             leadingIcon = {
                 IconButton(modifier = Modifier.alpha(ContentAlpha.disabled), onClick = { }) {
                     Icon(
-                        imageVector = Icons.Filled.Search, contentDescription = "Search Icon",
+                        imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.search_icon),
                         tint = MaterialTheme.colors.topAppBarContentColor
                     )
                 }
@@ -243,13 +242,13 @@ fun SearchAppBar(
                     }
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Close, contentDescription = "Close Icon",
+                        imageVector = Icons.Filled.Close, contentDescription = stringResource(R.string.close_icon),
                         tint = MaterialTheme.colors.topAppBarContentColor
                     )
                 }
             },
             keyboardOptions = KeyboardOptions(
-                // Enable serach icon in the keyboard
+                // Enable search icon in the keyboard
                 imeAction = ImeAction.Search
             ),
             // Whenever user press the Search icon in the keyboard then trigger onSearchClicked
