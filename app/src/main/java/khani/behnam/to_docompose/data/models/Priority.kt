@@ -6,7 +6,7 @@ import khani.behnam.to_docompose.ui.theme.LowPriorityColor
 import khani.behnam.to_docompose.ui.theme.MediumPriorityColor
 import khani.behnam.to_docompose.ui.theme.NonePriorityColor
 
-enum class Priority(color: Color) {
+enum class Priority(var color: Color) {
     HIGH(HighPriorityColor),
     MEDIUM(MediumPriorityColor),
     LOW(LowPriorityColor),

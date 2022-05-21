@@ -10,7 +10,7 @@ import khani.behnam.to_docompose.util.Constants.LIST_SCREEN
 
 // Extension Function for NavGraphBuilder
 fun NavGraphBuilder.listComposable(
-    navigateToTaskScreen: (Int) -> Unit
+    navigateToTaskScreen: (taskId: Int) -> Unit
     ){
     composable(
         route = LIST_SCREEN,
