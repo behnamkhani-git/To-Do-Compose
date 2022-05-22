@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.data.repositories.ToDoRepository
+import khani.behnam.to_docompose.util.RequestState
 import khani.behnam.to_docompose.util.SearchAppBarState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,20 +36,25 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
     StateFlow is hot. it means it keep emitting values even if there are no collectors
     A cold flow means it would not emit anything if there is no collector.
      */
-    private val _allTasks = MutableStateFlow<List<ToDoTask>>(emptyList() /*default value is an empty list */)
+    private val _allTasks = MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle /*default value is an empty list */)
     /* This is publicly exposed for our composable */
-    val allTasks: StateFlow<List<ToDoTask>> = _allTasks
+    val allTasks: StateFlow<RequestState<List<ToDoTask>>> = _allTasks
 
     fun getAllTasks(){
+        _allTasks.value = RequestState.Loading
         /*
         A ViewModelScope is defined for each ViewModel in your app. Any coroutine launched in this
         scope is automatically canceled if the ViewModel is cleared. Coroutines are useful here for
         when you have work that needs to be done only if the ViewModel is active.
          */
-        viewModelScope.launch {
-            repository.getAllTasks.collect {
-                _allTasks.value = it
+        try {
+            viewModelScope.launch {
+                repository.getAllTasks.collect {
+                    _allTasks.value = RequestState.Success(it)
+                }
             }
+        } catch (e: Exception) {
+            _allTasks.value = RequestState.Error(e)
         }
     }
 }

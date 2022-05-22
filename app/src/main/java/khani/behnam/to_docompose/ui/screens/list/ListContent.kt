@@ -19,18 +19,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.ui.theme.*
+import khani.behnam.to_docompose.util.RequestState
 
 @ExperimentalMaterialApi
 @Composable
 fun ListContent(
-    tasks: List<ToDoTask>,
+    tasks: RequestState<List<ToDoTask>>,
     // a lambda that takes a task id and returns nothing
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
-    if (tasks.isEmpty()){
-        EmptyContent()
-    } else {
-        DisplayTasks(tasks, navigateToTaskScreen)
+    if (tasks is RequestState.Success){
+        if (tasks.data.isEmpty()){
+            EmptyContent()
+        } else {
+            DisplayTasks(tasks.data, navigateToTaskScreen)
+        }
     }
 }
 
