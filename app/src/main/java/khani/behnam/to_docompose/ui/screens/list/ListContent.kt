@@ -27,6 +27,19 @@ fun ListContent(
     // a lambda that takes a task id and returns nothing
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
+    if (tasks.isEmpty()){
+        EmptyContent()
+    } else {
+        DisplayTasks(tasks, navigateToTaskScreen)
+    }
+}
+
+@ExperimentalMaterialApi
+@Composable
+fun DisplayTasks(
+    tasks: List<ToDoTask>,
+    navigateToTaskScreen: (taskId: Int) -> Unit
+) {
     LazyColumn {
         items(items = tasks,
             key = { task ->
@@ -38,6 +51,7 @@ fun ListContent(
         }
     }
 }
+
 
 @ExperimentalMaterialApi
 @Composable

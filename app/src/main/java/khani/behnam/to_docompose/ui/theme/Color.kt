@@ -9,8 +9,8 @@ val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 
-val lightGray = Color(0xFFFCFCFC)
-val mediumGray = Color(0xFF6200EE)
+val LightGray = Color(0xFFBDBDBD)
+val MediumGray = Color(0xFF606060)
 val DarkGray = Color(0xFF1C1C1C)
 
 val HighPriorityColor = Color(0xFFFF4646)
