@@ -36,6 +36,8 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
     StateFlow is hot. it means it keep emitting values even if there are no collectors
     A cold flow means it would not emit anything if there is no collector.
      */
+
+    // We are wrapping the response of _allTasks to be RequestState
     private val _allTasks = MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle /*default value is an empty list */)
     /* This is publicly exposed for our composable */
     val allTasks: StateFlow<RequestState<List<ToDoTask>>> = _allTasks
