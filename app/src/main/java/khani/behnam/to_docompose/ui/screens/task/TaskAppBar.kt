@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.room.Delete
 import khani.behnam.to_docompose.R
 import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
@@ -19,8 +18,18 @@ import khani.behnam.to_docompose.ui.theme.topAppBarContentColor
 import khani.behnam.to_docompose.util.Action
 
 @Composable
-fun TaskAppBar(navigateToListScree: (Action) -> Unit) {
-    NewTaskAppBar(navigateToListScree)
+fun TaskAppBar(
+    selectedTask: ToDoTask?,
+    navigateToListScreen: (Action) -> Unit
+) {
+    if (selectedTask == null) {
+        NewTaskAppBar(navigateToListScreen)
+    } else {
+        ExistingTaskAppBar(
+            selectedTask = selectedTask,
+            navigateToListScree = navigateToListScreen
+        )
+    }
 }
 
 @Composable
