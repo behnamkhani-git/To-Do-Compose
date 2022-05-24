@@ -2,6 +2,7 @@ package khani.behnam.to_docompose.ui.screens.task
 
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.util.Action
 
@@ -18,7 +19,14 @@ fun TaskScreen(
             )
         },
         content = {
-
+            TaskContent(
+                title = "",
+                onTitleChanged = {},
+                description = "",
+                onDescriptionChanged = {},
+                priority = Priority.LOW,
+                onPrioritySelected = {}
+            )
         }
     )
 }
