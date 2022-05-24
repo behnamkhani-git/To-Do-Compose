@@ -8,6 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.data.repositories.ToDoRepository
+import khani.behnam.to_docompose.util.Constants
+import khani.behnam.to_docompose.util.Constants.MAX_TITLE_LENGTH
 import khani.behnam.to_docompose.util.RequestState
 import khani.behnam.to_docompose.util.SearchAppBarState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,6 +98,13 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
             title.value = ""
             description.value = ""
             priority.value = Priority.LOW
+        }
+    }
+
+    // Set character length limit for Title
+    fun updateTitle(newTitle: String){
+        if (newTitle.length < MAX_TITLE_LENGTH) {
+            title.value = newTitle
         }
     }
 }
