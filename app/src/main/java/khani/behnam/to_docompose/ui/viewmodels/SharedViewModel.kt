@@ -8,10 +8,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.data.repositories.ToDoRepository
+import khani.behnam.to_docompose.util.Action
 import khani.behnam.to_docompose.util.Constants
 import khani.behnam.to_docompose.util.Constants.MAX_TITLE_LENGTH
 import khani.behnam.to_docompose.util.RequestState
 import khani.behnam.to_docompose.util.SearchAppBarState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -23,6 +25,8 @@ To enable injection of a ViewModel by Hilt use the @HiltViewModel annotation
  */
 @HiltViewModel
 class SharedViewModel @Inject constructor(private val repository: ToDoRepository) : ViewModel() {
+
+    val action: MutableState<Action> = mutableStateOf(Action.NO_ACTION)
 
     /**
     We use the following variables to hold changes at TaskContent.kt
@@ -85,13 +89,45 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
         }
     }
 
-    fun updateTaskFields(selectedTask: ToDoTask?){
-        if (selectedTask != null){  // When we have clicked on an existing Task
+    private fun addTask() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val toDoTask = ToDoTask(
+                title = title.value,
+                description = description.value,
+                priority = priority.value
+            )
+            repository.addTask(toDoTask)
+        }
+    }
+
+    fun handleDatabaseAction(action: Action) {
+        when (action) {
+            Action.ADD -> {
+                addTask()
+            }
+            Action.DELETE -> {
+
+            }
+            Action.DELETE_ALL -> {
+
+            }
+            Action.UNDO -> {
+
+            }
+            else -> {
+
+            }
+        }
+        this.action.value = Action.NO_ACTION
+    }
+
+    fun updateTaskFields(selectedTask: ToDoTask?) {
+        if (selectedTask != null) {  // When we have clicked on an existing Task
             id.value = selectedTask.id
             title.value = selectedTask.title
             description.value = selectedTask.description
             priority.value = selectedTask.priority
-        }else {  // When we clicked on FAB to create a new Task
+        } else {  // When we clicked on FAB to create a new Task
             id.value = 0
             title.value = ""
             description.value = ""
@@ -100,13 +136,13 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
     }
 
     // Set character length limit for Title
-    fun updateTitle(newTitle: String){
+    fun updateTitle(newTitle: String) {
         if (newTitle.length < MAX_TITLE_LENGTH) {
             title.value = newTitle
         }
     }
 
-    fun validateFields(): Boolean{
+    fun validateFields(): Boolean {
         return title.value.isNotEmpty() && description.value.isNotEmpty()
     }
 }

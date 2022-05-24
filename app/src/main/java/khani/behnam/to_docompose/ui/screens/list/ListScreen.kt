@@ -26,12 +26,20 @@ fun ListScreen(
     LaunchedEffect(key1 = true){
         sharedViewModel.getAllTasks()
     }
+
+
+
     // by using collectAsState() we are observing the database
     val allTasks by sharedViewModel.allTasks.collectAsState()
 
     // Observe the value of searchAppBarState from ViewModel
     val searchAppBarState: SearchAppBarState by sharedViewModel.searchAppBarState
     val searchTextState: String by sharedViewModel.searchTextState
+
+    // We are observing sharedViewModel.action variable
+    val action by sharedViewModel.action
+
+    sharedViewModel.handleDatabaseAction(action)
 
     Scaffold(
         // Top Bar (Action Bar)
