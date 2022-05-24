@@ -32,8 +32,6 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
     val description: MutableState<String> = mutableStateOf("")
     val priority: MutableState<Priority> = mutableStateOf(Priority.LOW)
 
-
-
     // When we click on search icon, this will be opened
     val searchAppBarState: MutableState<SearchAppBarState> =
         mutableStateOf(SearchAppBarState.CLOSED)
@@ -106,6 +104,10 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
         if (newTitle.length < MAX_TITLE_LENGTH) {
             title.value = newTitle
         }
+    }
+
+    fun validateFields(): Boolean{
+        return title.value.isNotEmpty() && description.value.isNotEmpty()
     }
 }
 

@@ -37,7 +37,14 @@ fun NavGraphBuilder.taskComposable(
 
         // When we move from here to TaskScreen, then we will set values of the selected Task
         // so that we can use it to fill TaskScreen (TaskComponent) Fields
-        LaunchedEffect(key1 = taskId) {
+
+        /**
+         * LaunchedEffect will execute its block when key1 value changes,
+         * it means when selectedTask changes at line 36:
+         * val selectedTask by sharedViewModel.selectedTask.collectAsState()
+         * then it will call updateTaskFields
+         */
+        LaunchedEffect(key1 = selectedTask) {
             sharedViewModel.updateTaskFields(selectedTask = selectedTask)
         }
 
