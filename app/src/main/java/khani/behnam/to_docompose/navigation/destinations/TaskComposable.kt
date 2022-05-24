@@ -1,6 +1,7 @@
 package khani.behnam.to_docompose.navigation.destinations
 
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
@@ -33,8 +34,16 @@ fun NavGraphBuilder.taskComposable(
         val taskId = navBackStackEntry.arguments!!.getInt(TASK_ARGUMENT_KEY)
         sharedViewModel.getSelectedTask(taskId = taskId)
         val selectedTask by sharedViewModel.selectedTask.collectAsState()
+
+        // When we move from here to TaskScreen, then we will set values of the selected Task
+        // so that we can use it to fill TaskScreen (TaskComponent) Fields
+        LaunchedEffect(key1 = taskId) {
+            sharedViewModel.updateTaskFields(selectedTask = selectedTask)
+        }
+
         TaskScreen(
             selectedTask = selectedTask,
+            sharedViewModel = sharedViewModel,
             navigateToListScree = navigateToListScreen
         )
     }
