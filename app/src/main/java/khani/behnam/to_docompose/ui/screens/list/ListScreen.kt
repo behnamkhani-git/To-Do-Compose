@@ -41,6 +41,7 @@ fun ListScreen(
 
 
     val scaffoldState = rememberScaffoldState()
+    // Whenever our listscreen triggers, will call this function
     DisplaySnackBar(
         scaffoldState = scaffoldState,
         handleDatabaseActions = { sharedViewModel.handleDatabaseAction(action = action) },

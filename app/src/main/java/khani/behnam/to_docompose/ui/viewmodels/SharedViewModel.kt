@@ -1,5 +1,6 @@
 package khani.behnam.to_docompose.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -100,10 +101,26 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
         }
     }
 
+    private fun updateTask() {
+        Log.d("SharedViewModel", "update")
+        viewModelScope.launch(Dispatchers.IO) {
+            val toDoTask = ToDoTask(
+                id = id.value,
+                title = title.value,
+                description = description.value,
+                priority = priority.value
+            )
+            repository.updateTask(toDoTask)
+        }
+    }
+
     fun handleDatabaseAction(action: Action) {
         when (action) {
             Action.ADD -> {
                 addTask()
+            }
+            Action.UPDATE -> {
+                updateTask()
             }
             Action.DELETE -> {
 
