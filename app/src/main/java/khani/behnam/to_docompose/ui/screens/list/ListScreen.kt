@@ -22,10 +22,9 @@ fun ListScreen(
     sharedViewModel: SharedViewModel
 ) {
     // is executed once when entered inside the composition. And it is canceled when leaving the composition.
-    LaunchedEffect(key1 = true){
+    LaunchedEffect(key1 = true) {
         sharedViewModel.getAllTasks()
     }
-
 
 
     // by using collectAsState() we are observing the database
@@ -39,12 +38,14 @@ fun ListScreen(
     val action by sharedViewModel.action
 
 
-
     val scaffoldState = rememberScaffoldState()
     // Whenever our listscreen triggers, will call this function
     DisplaySnackBar(
         scaffoldState = scaffoldState,
         handleDatabaseActions = { sharedViewModel.handleDatabaseAction(action = action) },
+        onUndoClicked = {
+            sharedViewModel.action.value = it
+        },
         taskTitle = sharedViewModel.title.value,
         action = action
     )
@@ -54,9 +55,11 @@ fun ListScreen(
         scaffoldState = scaffoldState,
         // Top Bar (Action Bar)
         topBar = {
-            ListAppBar(sharedViewModel =  sharedViewModel,
+            ListAppBar(
+                sharedViewModel = sharedViewModel,
                 searchAppBarState = searchAppBarState,
-                searchTextState = searchTextState)
+                searchTextState = searchTextState
+            )
         },
         content = {
             ListContent(tasks = allTasks, navigateToTaskScreen = navigateToTaskScreen)
@@ -90,19 +93,45 @@ fun ListFab(
 fun DisplaySnackBar(
     scaffoldState: ScaffoldState,
     handleDatabaseActions: () -> Unit,
+    onUndoClicked: (Action) -> Unit,
     taskTitle: String,
     action: Action
-){
+) {
     handleDatabaseActions()
     val scope = rememberCoroutineScope()
-    LaunchedEffect(key1 = action){
-        if (action != Action.NO_ACTION){
+    LaunchedEffect(key1 = action) {
+        if (action != Action.NO_ACTION) {
             scope.launch {
                 val snackBarResult = scaffoldState.snackbarHostState.showSnackbar(
                     message = "${action.name}: $taskTitle",
-                    actionLabel = "OK"
+                    actionLabel = setActionLabel(action)
+                )
+                undoDeletedTask(
+                    action = action,
+                    snackbarResult = snackBarResult,
+                    onUndoClicked = onUndoClicked
                 )
             }
         }
+    }
+}
+
+private fun setActionLabel(action: Action): String {
+    return if (action.name == "DELETE") {
+        "UNDO"
+    } else {
+        "OK"
+    }
+}
+
+private fun undoDeletedTask(
+    action: Action,
+    snackbarResult: SnackbarResult,
+    onUndoClicked: (Action) -> Unit
+) {
+    if (snackbarResult == SnackbarResult.ActionPerformed
+        && action == Action.DELETE
+    ) {
+        onUndoClicked(Action.UNDO)
     }
 }
