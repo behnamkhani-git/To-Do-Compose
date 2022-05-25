@@ -20,20 +20,47 @@ import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.ui.theme.*
 import khani.behnam.to_docompose.util.RequestState
+import khani.behnam.to_docompose.util.SearchAppBarState
 
 @ExperimentalMaterialApi
 @Composable
 fun ListContent(
-    tasks: RequestState<List<ToDoTask>>,
+    allTasks: RequestState<List<ToDoTask>>,
+    searchedTasks: RequestState<List<ToDoTask>>,
+    searchAppBarState: SearchAppBarState,
+
     // a lambda that takes a task id and returns nothing
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
-    if (tasks is RequestState.Success){
-        if (tasks.data.isEmpty()){
-            EmptyContent()
-        } else {
-            DisplayTasks(tasks.data, navigateToTaskScreen)
+    // #Search step 6: Runs this block, that Triggered means user clicked on search icon
+    // We have set this state to Triggered in #Search step 2.1
+    if (searchAppBarState == SearchAppBarState.TRIGGERED) {
+        // TRIGGERED is when the user click on search button
+
+        if (searchedTasks is RequestState.Success) {
+            HandleListContent(
+                tasks = searchedTasks.data,
+                navigateToTaskScreen = navigateToTaskScreen
+            )
         }
+
+    } else {
+        if (allTasks is RequestState.Success) {
+            HandleListContent(tasks = allTasks.data, navigateToTaskScreen = navigateToTaskScreen)
+        }
+    }
+}
+
+@ExperimentalMaterialApi
+@Composable
+fun HandleListContent(
+    tasks: List<ToDoTask>,
+    navigateToTaskScreen: (taskId: Int) -> Unit
+) {
+    if (tasks.isEmpty()) {
+        EmptyContent()  // Show the sad icon
+    } else {
+        DisplayTasks(tasks, navigateToTaskScreen)  // or display the found tasks
     }
 }
 

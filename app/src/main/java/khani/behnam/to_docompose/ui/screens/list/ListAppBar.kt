@@ -54,10 +54,15 @@ fun ListAppBar(
                     sharedViewModel.searchTextState.value = newText
                 },
                 onCloseClicked = {
+                    // #Search step 7: If you clicks on close button is search app bar, then change
+                    // state to CLOSED
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.CLOSED
                     sharedViewModel.searchTextState.value = ""
                 },
-                onSearchClicked = {})
+                onSearchClicked = {
+                    // #Search step 1: Pass the query to searchDatabase function
+                    sharedViewModel.searchDatabase(searchQuery = it)
+                })
         }
     }
 }

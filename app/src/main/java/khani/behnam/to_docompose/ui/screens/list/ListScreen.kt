@@ -30,6 +30,10 @@ fun ListScreen(
     // by using collectAsState() we are observing the database
     val allTasks by sharedViewModel.allTasks.collectAsState()
 
+    // by using collectAsState() we are observing the database
+    // #Search step 4: Founded tasks are observing here, so any changes to step 3, reflects here
+    val searchedTasks by sharedViewModel.searchedTasks.collectAsState()
+
     // Observe the value of searchAppBarState from ViewModel
     val searchAppBarState: SearchAppBarState by sharedViewModel.searchAppBarState
     val searchTextState: String by sharedViewModel.searchTextState
@@ -62,7 +66,13 @@ fun ListScreen(
             )
         },
         content = {
-            ListContent(tasks = allTasks, navigateToTaskScreen = navigateToTaskScreen)
+            // #Search step 5: Trigger ListContent
+            ListContent(
+                allTasks = allTasks,
+                searchedTasks = searchedTasks,
+                searchAppBarState = searchAppBarState,
+                navigateToTaskScreen = navigateToTaskScreen
+            )
         },
         floatingActionButton = {
             ListFab(onFabClicked = navigateToTaskScreen)

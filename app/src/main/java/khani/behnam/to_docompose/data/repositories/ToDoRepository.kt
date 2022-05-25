@@ -14,6 +14,7 @@ the ShareViewModel is alive
 @ViewModelScoped
 class ToDoRepository @Inject constructor(private val toDoDao: ToDoDao) {
     val getAllTasks: Flow<List<ToDoTask>> = toDoDao.getAllTasks()
+    fun searchDatabase(searchQuery: String): Flow<List<ToDoTask>> = toDoDao.searchDatabase(searchQuery)
     suspend fun sortByLowPriority(): Flow<List<ToDoTask>> = toDoDao.sortByLowPriority()
     suspend fun softByHighPriority(): Flow<List<ToDoTask>> = toDoDao.sortByHighPriority()
 

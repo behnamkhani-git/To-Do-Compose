@@ -57,9 +57,43 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
     // We are wrapping the response of _allTasks to be RequestState
     private val _allTasks =
         MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle /*default value is an empty list */)
-
     /* This is publicly exposed for our composable */
     val allTasks: StateFlow<RequestState<List<ToDoTask>>> = _allTasks
+
+    // We are wrapping the response of _searchedTasks to be RequestState
+    private val _searchedTasks =
+        MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle /*default value is .Idle */)
+    /* This is publicly exposed for our composable */
+    // #Search step 3: After assigning the searched items to _searchedTasks, then
+    // searchedTasks will observe changes (by founded tasks)
+
+    val searchedTasks: StateFlow<RequestState<List<ToDoTask>>> = _searchedTasks
+
+
+    fun searchDatabase(searchQuery: String) {
+        // #Search step 2: Update _searchedTasks with the result of search on database
+
+        _searchedTasks.value = RequestState.Loading
+        /*
+        A ViewModelScope is defined for each ViewModel in your app. Any coroutine launched in this
+        scope is automatically canceled if the ViewModel is cleared. Coroutines are useful here for
+        when you have work that needs to be done only if the ViewModel is active.
+         */
+        try {
+            viewModelScope.launch {
+                repository.searchDatabase(searchQuery = "%$searchQuery%")
+                    .collect {searchedTasks ->
+                        _searchedTasks.value = RequestState.Success(searchedTasks)
+                    }
+
+            }
+        } catch (e: Exception) {
+            _searchedTasks.value = RequestState.Error(e)
+        }
+        // TRIGGERED is when the user click on search button
+        // #Search step 2.1: Set the status, so that we will know user has clicked on search icon
+        searchAppBarState.value = SearchAppBarState.TRIGGERED
+    }
 
     fun getAllTasks() {
         _allTasks.value = RequestState.Loading
@@ -99,6 +133,12 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
             )
             repository.addTask(toDoTask)
         }
+
+        /**
+         * If searchbar is open and we click on fab and add a new task and
+         * return back to list screen, then we need to close search bar
+         */
+        searchAppBarState.value = SearchAppBarState.CLOSED
     }
 
     private fun updateTask() {
