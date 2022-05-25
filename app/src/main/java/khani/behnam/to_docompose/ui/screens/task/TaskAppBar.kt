@@ -6,11 +6,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import khani.behnam.to_docompose.R
+import khani.behnam.to_docompose.components.DisplayAlertDialog
 import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
 import khani.behnam.to_docompose.ui.theme.topAppBarBackgroundColor
@@ -97,11 +98,43 @@ fun ExistingTaskAppBar(
         },
         backgroundColor = MaterialTheme.colors.topAppBarBackgroundColor,
         actions = {
-            DeleteAction(onDeleteAction = navigateToListScree)
-            UpdateAction(onUpdateClicked = navigateToListScree)
+            ExistingTaskAppBarActions(
+                selectedTask = selectedTask,
+                navigateToListScree = navigateToListScree
+            )
         }
     )
 }
+
+@Composable
+fun ExistingTaskAppBarActions(
+    selectedTask: ToDoTask,
+    navigateToListScree: (Action) -> Unit
+) {
+    // Changing this value will trigger DisplayAlertDialog()
+    // #DELETE step 2: Resetting the value of openDialog will recompose ExistingTaskAppBarActions
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+
+    DisplayAlertDialog(
+        title = stringResource(id = R.string.delete_task, selectedTask.title),
+        message = stringResource(id = R.string.delete_task_confirmation, selectedTask.title),
+        openDialog = openDialog,
+        closeDialog = {
+            openDialog = false
+        },
+        // #DELETE step 4: When user click on Yes Button, will trigger the following code
+        onYesClicked = { navigateToListScree(Action.DELETE) })
+
+
+    DeleteAction(onDeleteAction = {
+        // #DELETE step 1: When you click on delete button, openDialog will set to true
+        openDialog = true
+    })
+    UpdateAction(onUpdateClicked = navigateToListScree)
+}
+
 
 // Back to list screen with Action.NO_ACTION
 @Composable
@@ -118,9 +151,9 @@ fun CloseAction(onCloseClicked: (Action) -> Unit) {
 
 // Back to list screen with Action.NO_ACTION
 @Composable
-fun DeleteAction(onDeleteAction: (Action) -> Unit) {
+fun DeleteAction(onDeleteAction: () -> Unit) {
     // we want to go back to the list screen and no action happened
-    IconButton(onClick = { onDeleteAction(Action.DELETE) }) {
+    IconButton(onClick = { onDeleteAction() }) {
         Icon(
             imageVector = Icons.Filled.Delete,
             contentDescription = stringResource(R.string.delete_icon),
