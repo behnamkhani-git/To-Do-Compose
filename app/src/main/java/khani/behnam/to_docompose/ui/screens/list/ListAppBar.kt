@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import khani.behnam.to_docompose.components.DisplayAlertDialog
 import khani.behnam.to_docompose.components.PriorityItem
 import khani.behnam.to_docompose.ui.theme.*
 import khani.behnam.to_docompose.ui.viewmodels.SharedViewModel
@@ -44,7 +45,8 @@ fun ListAppBar(
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.OPENED
                 },
                 onSortClicked = {},
-                onDeleteAllClicked = {
+                // #DELETEALL step 3: Here we define what to do after click yes
+                onDeleteAllConfirmed = {
                     sharedViewModel.action.value = Action.DELETE_ALL
                 }
             )
@@ -74,17 +76,20 @@ fun ListAppBar(
 fun DefaultListAppBar(
     onSearchClicked: () -> Unit,
     onSortClicked: (Priority) -> Unit,
-    onDeleteAllClicked: () -> Unit
+    onDeleteAllConfirmed: () -> Unit
 ) {
     TopAppBar(
         title = {
-            Text(text = stringResource(R.string.list_screen_title), color = MaterialTheme.colors.topAppBarContentColor)
+            Text(
+                text = stringResource(R.string.list_screen_title),
+                color = MaterialTheme.colors.topAppBarContentColor
+            )
         },
         actions = {
-            ListBarActions(
+            ListAppBarActions(
                 onSearchClicked = onSearchClicked,
                 onSortClicked = onSortClicked,
-                onDeleteAllClicked = onDeleteAllClicked
+                onDeleteAllConfirmed = onDeleteAllConfirmed
             )
         },
         backgroundColor = MaterialTheme.colors.topAppBarBackgroundColor
@@ -92,20 +97,38 @@ fun DefaultListAppBar(
 }
 
 @Composable
-fun ListBarActions(
+fun ListAppBarActions(
     onSearchClicked: () -> Unit,
     onSortClicked: (Priority) -> Unit,
-    onDeleteAllClicked: () -> Unit
+    onDeleteAllConfirmed: () -> Unit
 ) {
+
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+    
+    DisplayAlertDialog(
+        title = stringResource(id = R.string.delete_all_tasks), 
+        message = stringResource(id = R.string.delete_all_tasks_confirmation),
+        openDialog = openDialog,
+        closeDialog = { openDialog = false },
+        // #DELETEALL step 2: When you click yes, it will run onDeleteAllConfirmed
+
+        onYesClicked = {onDeleteAllConfirmed()}
+    )
     SearchAction(onSearchClicked = onSearchClicked)
     SortAction(onSortClicked = onSortClicked)
-    DeleteAllActions(onDeleteAllClicked = onDeleteAllClicked)
+    // #DELETEALL step 1: When you click on delete button, openDialog will set to true
+
+    DeleteAllActions(onDeleteAllConfirmed = {
+        openDialog = true
+    })
 }
 
 @Composable
 fun DeleteAllActions(
     // It accepts only one lambda
-    onDeleteAllClicked: () -> Unit
+    onDeleteAllConfirmed: () -> Unit
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -121,7 +144,7 @@ fun DeleteAllActions(
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(onClick = {
                 expanded = false
-                onDeleteAllClicked()
+                onDeleteAllConfirmed()
             }) {
                 Text(
                     modifier = Modifier.padding(start = LARGE_PADDING),
@@ -224,14 +247,15 @@ fun SearchAppBar(
             leadingIcon = {
                 IconButton(modifier = Modifier.alpha(ContentAlpha.disabled), onClick = { }) {
                     Icon(
-                        imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.search_icon),
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = stringResource(R.string.search_icon),
                         tint = MaterialTheme.colors.topAppBarContentColor
                     )
                 }
             },
             trailingIcon = {
                 IconButton(onClick = {
-                    when(trailingIconState){
+                    when (trailingIconState) {
                         TrailingIconState.READY_TO_DELETE -> {
                             // Remove the textfield text
                             onTextChanged("")
@@ -240,7 +264,7 @@ fun SearchAppBar(
                         TrailingIconState.READY_TO_CLOSE -> {
                             // If we have text in text field and click on close, it will clear the
                             // textField and then it close the search bar
-                            if (text.isNotEmpty()){
+                            if (text.isNotEmpty()) {
                                 onTextChanged("")
                             } else {
                                 onCloseClicked()
@@ -250,7 +274,8 @@ fun SearchAppBar(
                     }
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Close, contentDescription = stringResource(R.string.close_icon),
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.close_icon),
                         tint = MaterialTheme.colors.topAppBarContentColor
                     )
                 }
@@ -280,7 +305,7 @@ fun SearchAppBar(
 @Composable
 @Preview
 private fun DefaultListAppBarPreview() {
-    DefaultListAppBar(onSearchClicked = {}, onSortClicked = {}, onDeleteAllClicked = {}
+    DefaultListAppBar(onSearchClicked = {}, onSortClicked = {}, onDeleteAllConfirmed = {}
     )
 }
 
