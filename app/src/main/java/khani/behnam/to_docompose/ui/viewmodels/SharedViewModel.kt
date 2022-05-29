@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import khani.behnam.to_docompose.data.models.Priority
 import khani.behnam.to_docompose.data.models.ToDoTask
+import khani.behnam.to_docompose.data.repositories.DataStoreRepository
 import khani.behnam.to_docompose.data.repositories.ToDoRepository
 import khani.behnam.to_docompose.util.Action
 import khani.behnam.to_docompose.util.Constants
@@ -25,9 +26,13 @@ import javax.inject.Inject
 To enable injection of a ViewModel by Hilt use the @HiltViewModel annotation
  */
 @HiltViewModel
-class SharedViewModel @Inject constructor(private val repository: ToDoRepository) : ViewModel() {
+class SharedViewModel @Inject constructor(
+    private val repository: ToDoRepository,
+    private val dataStoreRepository: DataStoreRepository  // Inject DataStoreRepository inside sharedViewModel
+) : ViewModel() {
 
     val action: MutableState<Action> = mutableStateOf(Action.NO_ACTION)
+
 
     /**
     We use the following variables to hold changes at TaskContent.kt
@@ -57,6 +62,7 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
     // We are wrapping the response of _allTasks to be RequestState
     private val _allTasks =
         MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle /*default value is an empty list */)
+
     /* This is publicly exposed for our composable */
     val allTasks: StateFlow<RequestState<List<ToDoTask>>> = _allTasks
 
@@ -82,7 +88,7 @@ class SharedViewModel @Inject constructor(private val repository: ToDoRepository
         try {
             viewModelScope.launch {
                 repository.searchDatabase(searchQuery = "%$searchQuery%")
-                    .collect {searchedTasks ->
+                    .collect { searchedTasks ->
                         _searchedTasks.value = RequestState.Success(searchedTasks)
                     }
 
